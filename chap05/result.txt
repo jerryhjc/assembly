@@ -1,0 +1,227 @@
+bubble.s
+---
+# bubble.s - An example of the XCHG instruction
+.section .data
+values:
+   .int 105, 235, 61, 315, 134, 221, 53, 145, 117, 5
+.section .text
+.globl _start
+_start:
+   movl $values, %esi
+   movl $9, %ecx
+   movl $9, %ebx
+loop:
+   movl (%esi), %eax
+   cmp %eax, 4(%esi)
+   jge skip
+   xchg %eax, 4(%esi)
+   movl %eax, (%esi)
+skip:
+   add $4, %esi
+   dec %ebx
+   jnz loop
+   dec %ecx
+   jz end
+movl $values, %esi
+   movl %ecx, %ebx
+   jmp loop
+end:
+   movl $1, %eax
+   movl $0, %ebx
+   int $0x80
+
+cmovtest.s
+---
+# cmovtest.s - An example of the CMOV instructions
+.section .data
+output:
+   .asciz "The largest value is %d\n"
+values:
+   .int 105, 235, 61, 315, 134, 221, 53, 145, 117, 5
+.section .text
+.globl _start
+_start:
+   nop
+   movl values, %ebx
+   movl $1, %edi
+loop:
+   movl values(, %edi, 4), %eax
+   cmp %ebx, %eax
+   cmova %eax, %ebx
+   inc %edi
+   cmp $10, %edi
+   jne loop
+   pushl %ebx
+   pushl $output
+   call printf
+   addl $8, %esp
+   pushl $0
+   call exit
+
+cmpxchgtest.s
+---
+# cmpxchgtest.s - An example of the cmpxchg instruction
+.section .data
+data:
+   .int 10
+.section .text
+.globl _start
+_start:
+   nop
+   movl $10, %eax
+   movl $5, %ebx
+   cmpxchg %ebx, data
+   movl $1, %eax
+   int $0x80
+
+movtest1.s
+---
+# movtest1.s – An example of moving data from memory to a register
+.section .data
+   value:
+      .int 1
+.section .text
+.globl _start
+   _start:
+      nop
+      movl value, %ecx
+      movl $1, %eax
+      movl $0, %ebx
+      int $0x80
+
+movtest2.s
+---
+# movtest2.s – An example of moving register data to memory
+.section .data
+   value:
+      .int 1
+.section .text
+.globl _start
+   _start:
+      nop
+      movl $100, %eax
+      movl %eax, value
+      movl $1, %eax
+      movl $0, %ebx
+      int $0x80
+
+movtest3.s
+---
+# movtest3.s – Another example of using indexed memory locations
+.section .data
+output:
+   .asciz "The value is %d\n"
+values:
+   .int 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60
+.section .text
+.globl _start
+_start:
+   nop
+   movl $0, %edi
+loop:
+   movl values(, %edi, 4), %eax
+   pushl %eax
+   pushl $output
+   call printf
+   addl $8, %esp
+   inc %edi
+   cmpl $11, %edi
+   jne loop
+   movl $0, %ebx
+   movl $1, %eax
+   int $0x80
+
+movtest4.s
+---
+# movtest4.s – An example of indirect addressing
+.section .data
+values:
+   .int 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60
+.section .text
+.globl _start
+_start:
+   nop
+   movl values, %eax
+   movl $values, %edi
+   movl $100, 4(%edi)
+   movl $1, %edi
+   movl values(, %edi, 4), %ebx
+   movl $1, %eax
+   int $0x80
+
+pushpop.s
+---
+# pushpop.s - An example of using the PUSH and POP instructions
+.section .data
+data:
+   .int 125
+
+.section .text
+.globl _start
+_start:
+   nop
+   movl $24420, %ecx
+   movw $350, %bx
+   movb $100, %eax
+   pushl %ecx
+   pushw %bx
+   pushl %eax
+   pushl data
+   pushl $data
+
+   popl %eax
+   popl %eax
+   popl %eax
+   popw %ax
+   popl %eax
+   movl $0, %ebx
+   movl $1, %eax
+   int $0x80
+
+sizetest1.s
+---
+# sizetest1.s – A sample program to view the executable size
+.section .text
+.globl _start
+_start:
+   movl $1, %eax
+   movl $0, %ebx
+   int $0x80
+
+sizetest2.s
+---
+# sizetest2.s - A sample program to view the executable size
+.section .bss
+   .lcomm buffer, 10000
+.section .text
+.globl _start
+_start:
+   movl $1, %eax
+   movl $0, %ebx
+   int $0x80
+
+sizetest3.s
+---
+# sizetest3.s - A sample program to view the executable size
+.section .data
+buffer:
+   .fill 10000
+.section .text
+.globl _start
+_start:
+   movl $1, %eax
+   movl $0, %ebx
+   int $0x80
+
+swaptest.s
+---
+# swaptest.s – An example of using the BSWAP instruction
+.section .text
+.globl _start
+_start:
+   nop
+   movl $0x12345678, %ebx
+   bswap %ebx
+   movl $1, %eax
+   int $0x80
+
